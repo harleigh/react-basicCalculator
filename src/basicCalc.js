@@ -201,6 +201,7 @@ export default function SimpleCalculator() {
      */
     const applyDelKey = () => {
         if(emptyCalcExpr()){return}
+        console.log("Trying to delete key")
         const newCalcExpr = calcExpr.slice(0,-1);
         setCalcExpr(newCalcExpr)
         if(newCalcExpr!==""){
@@ -218,7 +219,7 @@ export default function SimpleCalculator() {
     }
 
     const applyClearKey = () => {
-        setCalcExpr(emptyCalcExpr)
+        setCalcExpr(emptyDisplay)
         setResultCalc(defaultResultCalc);
     }
 
@@ -230,7 +231,12 @@ export default function SimpleCalculator() {
                 <div className="calc-display">
                     <span>({resultCalc})</span> {calcExpr}
                 </div>
-                <div className="operators"><button onClick={applyClearKey}>CLR</button></div>
+                <div className="operators">
+                    <button onClick={() => null}>MS</button>
+                    <button onClick={() => null}>MR</button>
+                    <button onClick={() => null}>MC</button>
+                    <button onClick={applyClearKey}>CLR</button>
+                </div>
                 <div className="operators">
                     <button onClick={()=>updateCalcDisp(divSym)}>{divSym}</button>
                     <button onClick={()=>updateCalcDisp(multSym)}>{multSym}</button>
