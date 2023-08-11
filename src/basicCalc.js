@@ -25,8 +25,9 @@ export default function SimpleCalculator() {
 
     const numFixedPts = 7
     const emptyDisplay = ""
+    const defaultResultCalc = "0"
     const [calcExpr, setCalcExpr] = useState(emptyDisplay);
-    const [resultCalc, setResultCalc] = useState("0");
+    const [resultCalc, setResultCalc] = useState(defaultResultCalc);
     const [decimalPlaced, setDecimalPlaced] = useState(false)
     const divSym = "/"
     const multSym = "*"
@@ -117,6 +118,14 @@ export default function SimpleCalculator() {
         return (case1 || case2 || case3 || case4);
     }
 
+    const evalRunningTotal = ( expr ) => {
+        const lastKeyPressed = expr.slice(-1)
+        if(!isOperator(lastKeyPressed)){
+            const calculatedResult = performEvaluation(expr);
+            setResultCalc( calculatedResult );
+        }
+    } 
+
     /**
      * user has hit a button on the calculator, must update calculator
      * display and the running total if and only if the new entry that they
@@ -138,10 +147,11 @@ export default function SimpleCalculator() {
         manageDecimalPoint(newCalcEntry)
 
         //evaluate the running display result on the calculator
-        if(!isOperator(newCalcEntry)){
+        /* if(!isOperator(newCalcEntry)){
             const calculatedResult = performEvaluation(newCalcExpr);
             setResultCalc( calculatedResult );
-        }
+        } */
+        evalRunningTotal(newCalcExpr)
     }// end updating the calculator display
 
 
@@ -185,9 +195,26 @@ export default function SimpleCalculator() {
     }// end creating the digits buttons
 
 
+    /**
+     * remove the last element on the calculator display
+     * and then update the display
+     */
     const applyDelKey = () => {
         if(emptyCalcExpr()){return}
-
+        const newCalcExpr = calcExpr.slice(0,-1);
+        setCalcExpr(newCalcExpr)
+        if(newCalcExpr!==""){
+            const lastEntry = newCalcExpr.slice(-1)
+            if(!isOperator(lastEntry)) { //e.g. was "2+57" now "2+5"
+                evalRunningTotal(newCalcExpr)
+            }
+            else{//e.g. was "9-2" now "9-" so running total should be 9
+                evalRunningTotal(newCalcExpr.slice(0,-1))
+            }
+        }
+        else {//we deleted everything off the calculator display
+            setResultCalc(defaultResultCalc)
+        }
     }
 
     //the markup component (calculator)
@@ -204,7 +231,7 @@ export default function SimpleCalculator() {
                     <button onClick={()=>updateCalcDisp(plusSym)}>{plusSym}</button>
                     <button onClick={()=>updateCalcDisp(minusSym)}>{minusSym}</button>
 
-                    <button onClick={()=>applyDelKey()}>DEL</button>
+                    <button onClick={applyDelKey}>DEL</button>
                 </div>
                 <div className="digits">
                     {createDigits()}
