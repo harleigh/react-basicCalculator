@@ -1,6 +1,4 @@
-Simply learning React; a little calculator app based on youtuber Tyler Potts, who can be found at
+Simply learning React; a little calculator app based on an app designed by youtuber Tyler Potts (who can be found at https://www.youtube.com/@TylerPotts), but with added functionality and error handeling.
 
-https://www.youtube.com/@TylerPotts
-
-This basic calculator will look like the following:
-![image](https://github.com/harleigh/react-basicCalculator/assets/4912070/c587ffdd-3028-4940-a427-5256532f190e)
+This basic calculator looks like the following:
+![image](https://github.com/harleigh/react-basicCalculator/assets/4912070/9a22ae92-9b87-4665-bced-70a3510a754b)
