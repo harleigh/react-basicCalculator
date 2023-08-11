@@ -34,8 +34,9 @@ export default function SimpleCalculator() {
     const deciSym = "."
     const ops = [divSym, multSym, plusSym, minusSym, deciSym];
 
+
     const isDigit = (v) => {
-        return "0123456789".includes(v) && v!==emptyDisplay;
+        return "0123456789".includes(v) && !emptyCalcExpr();
     }
 
     const isOperator = (v) => {
@@ -44,6 +45,12 @@ export default function SimpleCalculator() {
     const emptyCalcExpr = () => {
         return calcExpr===emptyDisplay;
     }
+
+    //evaluates and returns a calculator expression, using the mathjs library
+    const performEvaluation = (expr) => {
+        return evaluate(expr).toString();
+    }
+
 
     /**
      * 
@@ -92,11 +99,6 @@ export default function SimpleCalculator() {
             const calculatedResult = performEvaluation(newCalcExpr);
             setResultCalc( calculatedResult );
         }
-    }
-
-    //evaluates and returns a calculator expression, using the mathjs library
-    const performEvaluation = (expr) => {
-        return evaluate(expr).toString();
     }
 
 
