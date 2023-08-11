@@ -217,6 +217,11 @@ export default function SimpleCalculator() {
         }
     }
 
+    const applyClearKey = () => {
+        setCalcExpr(emptyCalcExpr)
+        setResultCalc(defaultResultCalc);
+    }
+
     //the markup component (calculator)
     return (
         <>
@@ -225,6 +230,7 @@ export default function SimpleCalculator() {
                 <div className="calc-display">
                     <span>({resultCalc})</span> {calcExpr}
                 </div>
+                <div className="operators"><button onClick={applyClearKey}>CLR</button></div>
                 <div className="operators">
                     <button onClick={()=>updateCalcDisp(divSym)}>{divSym}</button>
                     <button onClick={()=>updateCalcDisp(multSym)}>{multSym}</button>
