@@ -25,9 +25,11 @@ export default function SimpleCalculator() {
 
     const numFixedPts = 7
     const emptyDisplay = ""
+    const emptyMemory = ""
     const defaultResultCalc = "0"
     const [calcExpr, setCalcExpr] = useState(emptyDisplay);
     const [resultCalc, setResultCalc] = useState(defaultResultCalc);
+    const [memVal, setMemVal] = useState(emptyMemory)
     const [decimalPlaced, setDecimalPlaced] = useState(false)
     const divSym = "/"
     const multSym = "*"
@@ -47,7 +49,7 @@ export default function SimpleCalculator() {
     }
 
     const isOperator = (v) => {
-        return ops.includes(v);
+        return ops.includes(v) ;
     }
     const emptyCalcExpr = () => {
         return calcExpr===emptyDisplay;
@@ -219,8 +221,21 @@ export default function SimpleCalculator() {
     }
 
     const applyClearKey = () => {
-        setCalcExpr(emptyDisplay)
+        setCalcExpr(emptyDisplay);
         setResultCalc(defaultResultCalc);
+    }
+
+    const applyMemoryClear = () => {
+        setMemVal(emptyMemory);
+    }
+    const applyMemoryStore = () => {
+        setMemVal(resultCalc);
+    }
+    const applyMemoryRecall = () => {
+        if( memVal===emptyMemory){ return; }
+        const newCalcExpr = calcExpr + memVal
+        setCalcExpr(newCalcExpr)
+        evalRunningTotal(newCalcExpr)
     }
 
     //the markup component (calculator)
@@ -229,21 +244,20 @@ export default function SimpleCalculator() {
         <div className="app">
             <div className="calculator">
                 <div className="calc-display">
-                    <span>({resultCalc})</span> {calcExpr}
+                <span>[{memVal}]&nbsp; </span> <span>({resultCalc})</span> {calcExpr}
                 </div>
                 <div className="operators">
-                    <button onClick={() => null}>MS</button>
-                    <button onClick={() => null}>MR</button>
-                    <button onClick={() => null}>MC</button>
+                    <button onClick={applyMemoryStore}>MS</button>
+                    <button onClick={applyMemoryRecall}>MR</button>
+                    <button onClick={applyMemoryClear}>MC</button>
                     <button onClick={applyClearKey}>CLR</button>
+                    <button onClick={applyDelKey}>DEL</button>
                 </div>
                 <div className="operators">
                     <button onClick={()=>updateCalcDisp(divSym)}>{divSym}</button>
                     <button onClick={()=>updateCalcDisp(multSym)}>{multSym}</button>
                     <button onClick={()=>updateCalcDisp(plusSym)}>{plusSym}</button>
-                    <button onClick={()=>updateCalcDisp(minusSym)}>{minusSym}</button>
-
-                    <button onClick={applyDelKey}>DEL</button>
+                    <button onClick={()=>updateCalcDisp(minusSym)}>{minusSym}</button>   
                 </div>
                 <div className="digits">
                     {createDigits()}
