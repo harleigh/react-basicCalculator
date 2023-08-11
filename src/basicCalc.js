@@ -33,6 +33,7 @@ export default function SimpleCalculator() {
     const plusSym = "+"
     const minusSym = "-"
     const deciSym = "."
+    const equSym = "="
     const ops = [divSym, multSym, plusSym, minusSym, deciSym];
 
     /**
@@ -184,6 +185,10 @@ export default function SimpleCalculator() {
     }// end creating the digits buttons
 
 
+    const applyDelKey = () => {
+        if(emptyCalcExpr()){return}
+
+    }
 
     //the markup component (calculator)
     return (
@@ -199,12 +204,12 @@ export default function SimpleCalculator() {
                     <button onClick={()=>updateCalcDisp(plusSym)}>{plusSym}</button>
                     <button onClick={()=>updateCalcDisp(minusSym)}>{minusSym}</button>
 
-                    <button>DEL</button>
+                    <button onClick={()=>applyDelKey()}>DEL</button>
                 </div>
                 <div className="digits">
                     {createDigits()}
                     <button onClick={()=>updateCalcDisp(deciSym)}>{deciSym}</button>
-                    <button onClick={()=>applyEqualsKey()}>=</button>
+                    <button onClick={()=>applyEqualsKey()}>{equSym}</button>
                 </div>
             </div>
         </div>
