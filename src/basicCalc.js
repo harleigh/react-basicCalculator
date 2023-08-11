@@ -23,6 +23,10 @@ export default function SimpleCalculator() {
     const deciSym = "."
     const ops = [divSym, multSym, plusSym, minusSym, deciSym];
 
+    const isDigit = (v) => {
+        return "0123456789".includes(v);
+    }
+
     const isOperator = (v) => {
         return ops.includes(v);
     }
@@ -49,6 +53,7 @@ export default function SimpleCalculator() {
         const newCalcExpr = calcExpr + v;
         setCalcExpr( newCalcExpr );
 
+        //manage the decimal point: 
         if(v === deciSym){
             setDecimalPlaced(true)
         }
@@ -57,13 +62,24 @@ export default function SimpleCalculator() {
         }
 
         if(!isOperator(v)){
-            performEvaluation(newCalcExpr);
+            const calculatedResult = performEvaluation(newCalcExpr);
+            setResultCalc( calculatedResult );
         }
     }
 
+    //evaluates a calculator expression
     const performEvaluation = (expr) => {
-        const calculatedResult = evaluate(expr).toString();
-        setResultCalc( calculatedResult );
+        return evaluate(expr).toString();
+    }
+
+
+    const applyEqualsKey = () => {
+        const lastInDisplay = calcExpr.slice(-1);
+        if( isDigit(lastInDisplay) ){ 
+            const evaluatedExpr = performEvaluation(calcExpr);
+            setCalcExpr(evaluatedExpr);
+            setResultCalc( evaluatedExpr )
+        }
     }
 
     /**
@@ -88,6 +104,7 @@ export default function SimpleCalculator() {
     }
 
 
+
     //the markup component (calculator)
     return (
         <>
@@ -107,7 +124,7 @@ export default function SimpleCalculator() {
                 <div className="digits">
                     {createDigits()}
                     <button onClick={()=>updateCalcDisp(deciSym)}>{deciSym}</button>
-                    <button>=</button>
+                    <button onClick={()=>applyEqualsKey()}>=</button>
                 </div>
             </div>
         </div>
