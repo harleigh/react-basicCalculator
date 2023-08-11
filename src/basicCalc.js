@@ -11,9 +11,20 @@ import { evaluate } from 'mathjs'
 //"export default"  makes this the main component in the file.
 //returns a component that contains the filter table with a little
 //header above
+
+/**
+ * The calculator has two special states that displays to the user:
+ *   calcExpr: Which is a running amount of digits and math operations
+ *             like "8+9/3-0.1-100"
+ *   resultCalc: this is a running evaluation of the calculator
+ *               expression and is displayed in parenthesis
+ *               e.g. "(5) 3-1+3*1"
+ * @returns A calculator component
+ */
 export default function SimpleCalculator() {
 
-    const [calcExpr, setCalcExpr] = useState("");
+    const emptyDisplay = ""
+    const [calcExpr, setCalcExpr] = useState(emptyDisplay);
     const [resultCalc, setResultCalc] = useState("0");
     const [decimalPlaced, setDecimalPlaced] = useState(false)
     const divSym = "/"
@@ -24,31 +35,47 @@ export default function SimpleCalculator() {
     const ops = [divSym, multSym, plusSym, minusSym, deciSym];
 
     const isDigit = (v) => {
-        return "0123456789".includes(v);
+        return "0123456789".includes(v) && v!==emptyDisplay;
     }
 
     const isOperator = (v) => {
         return ops.includes(v);
     }
-    const isEmpty = (v) => {
-        return v==="";
+    const emptyCalcExpr = () => {
+        return calcExpr===emptyDisplay;
     }
 
+    /**
+     * 
+     * case1: the new entry is an operator, and the last entry in the display
+     *        is an operator
+     * case2: there is nothing in the calculator expression and the user tried
+     *        to apply an operator (e.g. they hit the plus sign before any
+     *        numbers are in the display)
+     * case3: Watches for multiple decimal points.  If the decimal place is 
+     *        currently being used and the user hit the decimal place again, 
+     *        then the user has given an invalid expression for the calculator
+     *        display  
+     * @param {*} newEntry entry that user has pressed (as a button)
+     * @returns true if and only if the new entry the user attempted to add
+     *          to the display results in an invalid math expression 
+     */
     const makesInvalidExpr = (newEntry) => {
         const lastInDisplay = calcExpr.slice(-1);
         const case1 = isOperator(newEntry) && isOperator(lastInDisplay);
-        const case2 = isOperator(newEntry) && isEmpty(calcExpr)
+        const case2 = isOperator(newEntry) && emptyCalcExpr()
         const case3 = decimalPlaced && newEntry===deciSym;
         //return (isOperator(newEntry) && (isOperator(lastInDisplay) || isEmpty(calcExpr)));
         return (case1 || case2 || case3);
     }
 
     /**
-     * user has hit a button on the calculator display, must update calculator 
+     * user has hit a button on the calculator, must update calculator
+     * display and the running total 
      */
     const updateCalcDisp = (v) => {
 
-        if( makesInvalidExpr(v) ) { return;}
+        if( makesInvalidExpr(v) ) {return;}
         
         const newCalcExpr = calcExpr + v;
         setCalcExpr( newCalcExpr );
@@ -67,12 +94,21 @@ export default function SimpleCalculator() {
         }
     }
 
-    //evaluates a calculator expression
+    //evaluates and returns a calculator expression, using the mathjs library
     const performEvaluation = (expr) => {
         return evaluate(expr).toString();
     }
 
 
+    /**
+     * Case: User hit equals button
+     * --On (valid) equal sign press, we evaluate the running calculator
+     *   expression, compressing it to the evaluated value e.g. "1+3"
+     *   becomes 4 on the running calculator expression. We also update
+     *   the running result, so for our example of "1+3" display is "(4) 4"
+     * --A valid expression for us to apply the equals functionality is when
+     *   the last entry in the calc display is a number.
+     */
     const applyEqualsKey = () => {
         const lastInDisplay = calcExpr.slice(-1);
         if( isDigit(lastInDisplay) ){ 
@@ -80,7 +116,7 @@ export default function SimpleCalculator() {
             setCalcExpr(evaluatedExpr);
             setResultCalc( evaluatedExpr )
         }
-    }
+    }//end apply equals key
 
     /**
      * Note: digit 0 is to be below all other digits per calculator
@@ -101,7 +137,7 @@ export default function SimpleCalculator() {
             > 0 </button>)
 
         return digits;
-    }
+    }// end creating the digits buttons
 
 
 
