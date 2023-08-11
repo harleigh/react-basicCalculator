@@ -6,7 +6,7 @@
 //TODO: repeating decimals 
 
 import { useState } from 'react';
-import { evaluate } from 'mathjs'
+import { evaluate, format } from 'mathjs'
 
 //"export default"  makes this the main component in the file.
 //returns a component that contains the filter table with a little
@@ -23,6 +23,7 @@ import { evaluate } from 'mathjs'
  */
 export default function SimpleCalculator() {
 
+    const numFixedPts = 7
     const emptyDisplay = ""
     const [calcExpr, setCalcExpr] = useState(emptyDisplay);
     const [resultCalc, setResultCalc] = useState("0");
@@ -34,9 +35,13 @@ export default function SimpleCalculator() {
     const deciSym = "."
     const ops = [divSym, multSym, plusSym, minusSym, deciSym];
 
-
+    /**
+     * A digit is 0 through 9.
+     * Special case: Watch out if v is the empty string (e.g. user
+     * hits equals sign on a blank calculator display)
+     */
     const isDigit = (v) => {
-        return "0123456789".includes(v) && !emptyCalcExpr();
+        return "0123456789".includes(v) && v!=="";
     }
 
     const isOperator = (v) => {
@@ -48,7 +53,19 @@ export default function SimpleCalculator() {
 
     //evaluates and returns a calculator expression, using the mathjs library
     const performEvaluation = (expr) => {
-        return evaluate(expr).toString();
+        const evaluatedExpr = evaluate(expr)
+        const formattedExpr = format(evaluatedExpr, numFixedPts)
+        //return evaluate(expr).toString();
+        return formattedExpr.toString()
+    }
+
+    const manageDecimalPoint = (newCalcEntry) => {
+        if(newCalcEntry === deciSym){
+            setDecimalPlaced(true)
+        }
+        else if(isOperator(newCalcEntry)){
+            setDecimalPlaced(false)
+        }
     }
 
 
@@ -72,7 +89,6 @@ export default function SimpleCalculator() {
         const case1 = isOperator(newEntry) && isOperator(lastInDisplay);
         const case2 = isOperator(newEntry) && emptyCalcExpr()
         const case3 = decimalPlaced && newEntry===deciSym;
-        //return (isOperator(newEntry) && (isOperator(lastInDisplay) || isEmpty(calcExpr)));
         return (case1 || case2 || case3);
     }
 
@@ -80,22 +96,18 @@ export default function SimpleCalculator() {
      * user has hit a button on the calculator, must update calculator
      * display and the running total 
      */
-    const updateCalcDisp = (v) => {
+    const updateCalcDisp = (newCalcEntry) => {
 
-        if( makesInvalidExpr(v) ) {return;}
+        if( makesInvalidExpr(newCalcEntry) ) {return;}
         
-        const newCalcExpr = calcExpr + v;
+        const newCalcExpr = calcExpr + newCalcEntry;
         setCalcExpr( newCalcExpr );
 
-        //manage the decimal point: 
-        if(v === deciSym){
-            setDecimalPlaced(true)
-        }
-        else if(isOperator(v)){
-            setDecimalPlaced(false)
-        }
+        //manage the decimal point flag: 
+        manageDecimalPoint(newCalcEntry)
 
-        if(!isOperator(v)){
+        //evaluate the running display result on the calculator
+        if(!isOperator(newCalcEntry)){
             const calculatedResult = performEvaluation(newCalcExpr);
             setResultCalc( calculatedResult );
         }
