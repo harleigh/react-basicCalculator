@@ -3,8 +3,6 @@
 //yet being paved; as I am learning, all code and documentation are "as is"
 
 
-//TODO: repeating decimals 
-
 import { useState } from 'react';
 import { evaluate, format } from 'mathjs'
 
@@ -13,12 +11,16 @@ import { evaluate, format } from 'mathjs'
 //header above
 
 /**
- * The calculator has two special states that displays to the user:
+ * The calculator has three special states that displays to the user:
  *   calcExpr: Which is a running amount of digits and math operations
  *             like "8+9/3-0.1-100"
  *   resultCalc: this is a running evaluation of the calculator
  *               expression and is displayed in parenthesis
  *               e.g. "(5) 3-1+3*1"
+ *   memVal:   a single rational number stored in a variable, displayed
+ *             with square brackets: e.g. "[11] (-4) 0-4" here the
+ *             memory is 11, the running total is -4 and the calculator
+ *             (display) expression is "0-4" 
  * @returns A calculator component
  */
 export default function SimpleCalculator() {
@@ -84,6 +86,7 @@ export default function SimpleCalculator() {
         }
     }// end managaing the decimal flag
 
+    //managing divide by zero
     const validEvaluation = (amt) => {
         return (amt !=="Infinity" && !isNaN(amt))
     }
@@ -120,13 +123,18 @@ export default function SimpleCalculator() {
         return (case1 || case2 || case3 || case4);
     }
 
+    /**
+     * The running is in parentheis e.g. "(7) 2+5"
+     * Assumes that the expression is not an empty string
+     * @param {*} expr Math expression (as string) to be evaluated to a number
+     */
     const evalRunningTotal = ( expr ) => {
         const lastKeyPressed = expr.slice(-1)
         if(!isOperator(lastKeyPressed)){
             const calculatedResult = performEvaluation(expr);
             setResultCalc( calculatedResult );
         }
-    } 
+    }//end evaluate the running total
 
     /**
      * user has hit a button on the calculator, must update calculator
@@ -149,10 +157,6 @@ export default function SimpleCalculator() {
         manageDecimalPoint(newCalcEntry)
 
         //evaluate the running display result on the calculator
-        /* if(!isOperator(newCalcEntry)){
-            const calculatedResult = performEvaluation(newCalcExpr);
-            setResultCalc( calculatedResult );
-        } */
         evalRunningTotal(newCalcExpr)
     }// end updating the calculator display
 
@@ -218,21 +222,25 @@ export default function SimpleCalculator() {
         else {//we deleted everything off the calculator display
             setResultCalc(defaultResultCalc)
         }
-    }
+    }// end delete key functionality
 
+    /**
+     * resets the calculator display to an empty string and
+     * resets the running total back to 0
+     */
     const applyClearKey = () => {
         setCalcExpr(emptyDisplay);
         setResultCalc(defaultResultCalc);
     }
 
-    const applyMemoryClear = () => {
-        setMemVal(emptyMemory);
-    }
-    const applyMemoryStore = () => {
-        setMemVal(resultCalc);
-    }
+    /**
+     * a collection of basic memory operations for this basic,
+     * but fun beginner calculator project.
+     */
+    const applyMemoryClear = () => { setMemVal(emptyMemory); }
+    const applyMemoryStore = () => { setMemVal(resultCalc);  }
     const applyMemoryRecall = () => {
-        if( memVal===emptyMemory){ return; }
+        if( memVal===emptyMemory ){ return; }
         const newCalcExpr = calcExpr + memVal
         setCalcExpr(newCalcExpr)
         evalRunningTotal(newCalcExpr)
@@ -244,7 +252,7 @@ export default function SimpleCalculator() {
         <div className="app">
             <div className="calculator">
                 <div className="calc-display">
-                <span>[{memVal}]&nbsp; </span> <span>({resultCalc})</span> {calcExpr}
+                <span>[{memVal}]&nbsp;</span><span>({resultCalc})</span> {calcExpr}
                 </div>
                 <div className="operators">
                     <button onClick={applyMemoryStore}>MS</button>
