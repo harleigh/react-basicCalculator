@@ -55,10 +55,22 @@ export default function SimpleCalculator() {
     const performEvaluation = (expr) => {
         const evaluatedExpr = evaluate(expr)
         const formattedExpr = format(evaluatedExpr, numFixedPts)
-        //return evaluate(expr).toString();
         return formattedExpr.toString()
     }
 
+    /**
+     * This manages the flag representing whether the decimal key has
+     * been pressed. This flag is used in determining whether the user
+     * is entering a valid mathematical expression.
+     *      e.g. 0.8, 0.011, 000.91331 are each valid
+     *      e.g. 0.8. , 0.77000.01 are not valid
+     * The user is allowed to place another decimal only if an operator
+     * key has been hit  with "9.7 +" the user can use the decimal place
+     * once again
+     * 
+     * @param {*} newCalcEntry This is entry from the button that the user
+     *     pressed on the calculator
+     */
     const manageDecimalPoint = (newCalcEntry) => {
         if(newCalcEntry === deciSym){
             setDecimalPlaced(true)
@@ -66,11 +78,16 @@ export default function SimpleCalculator() {
         else if(isOperator(newCalcEntry)){
             setDecimalPlaced(false)
         }
+    }// end managaing the decimal flag
+
+    const validEvaluation = (amt) => {
+        return (amt !=="Infinity" && !isNaN(amt))
     }
 
-
     /**
-     * 
+     * Note: This is such a simple calculator, we can brute-out all the cases
+     *       of errors.  In a new calculator (with say, parenthesis) the divide
+     *       by zero case would be more of an issue.
      * case1: the new entry is an operator, and the last entry in the display
      *        is an operator
      * case2: there is nothing in the calculator expression and the user tried
@@ -80,6 +97,12 @@ export default function SimpleCalculator() {
      *        currently being used and the user hit the decimal place again, 
      *        then the user has given an invalid expression for the calculator
      *        display  
+     * case4: We are avoiding a NaN or Infinty divide by zero scenario here. 
+     *        Becuase the running total is always updated at each entry key,
+     *        the user can get a divide by zero entering "3/0.5" as first they
+     *        have to enter "3"->"3/"->"3/0"->"3/0.5", so the user is still valid
+     *        at "3/0" provided they hit a number key or the decimal key.
+     *    TODO:ADD DEL key to case 4
      * @param {*} newEntry entry that user has pressed (as a button)
      * @returns true if and only if the new entry the user attempted to add
      *          to the display results in an invalid math expression 
@@ -89,12 +112,19 @@ export default function SimpleCalculator() {
         const case1 = isOperator(newEntry) && isOperator(lastInDisplay);
         const case2 = isOperator(newEntry) && emptyCalcExpr()
         const case3 = decimalPlaced && newEntry===deciSym;
-        return (case1 || case2 || case3);
+        const case4 = !validEvaluation(resultCalc) && !isDigit(newEntry) && newEntry!==deciSym;
+        return (case1 || case2 || case3 || case4);
     }
 
     /**
      * user has hit a button on the calculator, must update calculator
-     * display and the running total 
+     * display and the running total if and only if the new entry that they
+     * hit on the calculator makes a valid expression.
+     * 
+     * If the entry from the user is valid: we update the expression in the
+     * calculator display, we manage the decimal point, and as long as the 
+     * user has not entered an operator (which includes the decimal point),
+     * we update the running total of the displaied calculator expression.
      */
     const updateCalcDisp = (newCalcEntry) => {
 
@@ -111,15 +141,13 @@ export default function SimpleCalculator() {
             const calculatedResult = performEvaluation(newCalcExpr);
             setResultCalc( calculatedResult );
         }
-    }
+    }// end updating the calculator display
 
 
     /**
      * Case: User hit equals button
-     * --On (valid) equal sign press, we evaluate the running calculator
-     *   expression, compressing it to the evaluated value e.g. "1+3"
-     *   becomes 4 on the running calculator expression. We also update
-     *   the running result, so for our example of "1+3" display is "(4) 4"
+     * --On (valid) equal sign press, the calculator expression in the display
+     *   e.g. "(5) 1+4" is changed to what the running amount is "(5) 5"
      * --A valid expression for us to apply the equals functionality is when
      *   the last entry in the calc display is a number.
      */
@@ -127,8 +155,10 @@ export default function SimpleCalculator() {
         const lastInDisplay = calcExpr.slice(-1);
         if( isDigit(lastInDisplay) ){ 
             const evaluatedExpr = performEvaluation(calcExpr);
-            setCalcExpr(evaluatedExpr);
-            setResultCalc( evaluatedExpr )
+            if( validEvaluation(evaluatedExpr)) {
+                setCalcExpr(evaluatedExpr);
+                setResultCalc( evaluatedExpr )
+            }
         }
     }//end apply equals key
 
